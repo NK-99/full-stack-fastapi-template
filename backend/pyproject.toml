@@ -2,7 +2,7 @@
 name = "app"
 version = "0.1.0"
 description = ""
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "fastapi[standard]<1.0.0,>=0.114.2",
     "python-multipart<1.0.0,>=0.0.7",
@@ -40,41 +40,93 @@ build-backend = "hatchling.build"
 [tool.mypy]
 strict = true
 exclude = ["venv", ".venv", "alembic"]
-
 [tool.ruff]
-target-version = "py310"
-exclude = ["alembic"]
+target-version = "py312"
+
+line-length = 320
+indent-width = 4
+
+exclude = ["alembic", "venv", ".venv"]
+
+[tool.ruff.format]
+indent-style = "tab"
+quote-style = "double"
+line-ending = "lf"
+skip-magic-trailing-comma = false
 
 [tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "ARG001", # unused arguments in functions
-    "T201",   # print statements are not allowed
+select = ["ALL"]
+
+fixable = [
+    "E301", # blank-line-between-methods
+    "E302", # blank-lines-top-level
+    "E303", # too-many-blank-lines
+    "E304", # blank-line-after-decorator
+    "E305", # blank-lines-after-function-or-class
+    "E306", # blank-lines-before-nested-definition
 ]
+
+# Extra selects from your file; redundant with select=["ALL"], but harmless to keep.
+extend-select = [
+    "D300", # triple-single-quotes
+    "Q000", # bad-quotes-inline-string
+    "Q001", # bad-quotes-multiline-string
+    "Q002", # bad-quotes-docstring
+    "Q003", # avoidable-escaped-quote
+    "COM819", # prohibited-trailing-comma
+    "ISC001", # single-line-implicit-string-concatenation
+    "ISC002", # multi-line-implicit-string-concatenation
+]
+
+# Combined ignores: FastAPI template + your other project.
 ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "W191",  # indentation contains tabs
-    "B904",  # Allow raising exceptions without from e, for HTTPException
+    # --- From FastAPI template ---
+    "E501", # line too long
+    "B008", # do not perform function calls in argument defaults
+    "W191", # indentation contains tabs
+    "B904", # allow raising exceptions without from e
+    "ARG001", # unused function argument (template selected it; with ALL you'd ignore or enforce; keeping template behavior)
+
+    # --- From your other project ---
+    "D100", # undocumented-public-module
+    "D101", # undocumented-public-class
+    "D102", # undocumented-public-method
+    "D103", # undocumented-public-function
+    "D104", # undocumented-public-package
+    "D105", # undocumented-public-nested-class
+    "D106", # undocumented-public-nested-class
+    "D107", # undocumented-public-init
+    "D202", # blank-line-after-function
+    "D203", # incorrect-blank-line-before-class
+    "D205", # missing-blank-line-after-summary
+    "D206", # docstring-tab-indentation
+    "D212", # multi-line-summary-first-line
+    "D401", # non-imperative-mood
+
+    "ERA001", # commented out code
+    "SIM108", # force ternary operator usage
+    "DTZ005", # forced usage of tz on datetime.now()
+
+    "E111", # indentation-with-invalid-multiple
+    "E114", # indentation-with-invalid-multiple-comment
+    "E117", # over-indented
+
+    "T201", # print keyword
+
+    "RUF012", # mutable-class-default (you noted: keep for now)
+    "TD002", # missing-todo-author
+    "TD003", # missing-todo-link
+    "FIX002", # line-contains-todo
+
+    "ANN002", # missing-type-args
+    "ANN003", # missing-type-kwargs
+
+    "COM812", # missing-trailing-comma (recommended to ignore)
+    "RET503", # implicit-return
 ]
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))|args|kwargs$"
 
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.
 keep-runtime-typing = true
-
-[tool.coverage.run]
-source = ["app"]
-dynamic_context = "test_function"
-
-[tool.coverage.report]
-show_missing = true
-sort = "-Cover"
-
-[tool.coverage.html]
-show_contexts = true
